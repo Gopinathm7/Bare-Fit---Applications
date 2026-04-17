@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vedita Ventures — Hiring System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --primary: #178b8a;
+  --secondary: #2ca19f;
+  --light: #d3dada;
+  --dark: #1a1a1a;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 16px 40px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 42px;   /* 🔥 THIS controls size */
+  width: auto;
+  object-fit: contain;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #f8fafa;
+  color: var(--dark);
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 60px;
+  background: white;
+  border-bottom: 1px solid #eee;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* HERO */
+.hero {
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero h1 {
+  font-size: 42px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  font-size: 16px;
+  color: #666;
+  max-width: 500px;
+  margin-bottom: 30px;
+}
+
+/* BUTTONS */
+.btn-group {
+  display: flex;
+  gap: 16px;
+}
+
+.btn {
+  padding: 12px 26px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #146f6e;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+  color: #888;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="logo">
+  <img src="https://veditaventures.com/assets/logo.png" alt="Vedita Ventures Logo">
+</div>
+<!-- HERO -->
+
+<div class="hero">
+  <h1>BARE Fit Hiring System</h1>
+  <p>
+    Evaluate candidates with clarity, structure, and precision.
+    Built for modern hiring workflows.
+  </p>
+
+  <div class="btn-group">
+    <a href="candidate_form.html">
+      <button class="btn btn-primary">Apply Now</button>
+    </a>
+
+```
+<a href="evaluator_dashboard.html">
+  <button class="btn btn-outline">Evaluator Dashboard</button>
+</a>
+```
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+  © 2026 Vedita Ventures · Internal Hiring Tool
+</div>
+
+</body>
+</html>
