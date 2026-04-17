@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply — Junior HR Consultant</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --ink: #141418;
+  --ink2: #3C3C48;
+  --muted: #8C8C9E;
+  --border: #E2E2EC;
+  --surface: #F7F7FB;
+  --white: #FFFFFF;
+  --blue: #1B3A6B;
+  --blue-mid: #2A5298;
+  --teal: #0E7C86;
+  --teal-lt: #E3F5F6;
+  --amber: #B86E00;
+  --amber-lt: #FEF3E2;
+  --green: #166534;
+  --green-lt: #DCFCE7;
+  --red: #991B1B;
+  --red-lt: #FEE2E2;
+  --radius: 14px;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #EEEEF5;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── progress bar ── */
+.progress-shell {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 3px; background: rgba(255,255,255,0.3);
+}
+.progress-fill {
+  height: 100%; background: var(--teal);
+  transition: width 0.4s ease; width: 0%;
+}
+
+/* ── page wrapper ── */
+.page { max-width: 680px; margin: 0 auto; padding: 48px 24px 80px; }
+
+/* ── brand header ── */
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 40px;
+}
+.brand-mark {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--blue); display: flex; align-items: center;
+  justify-content: center;
+}
+.brand-mark svg { width: 18px; height: 18px; }
+.brand-name { font-size: 14px; font-weight: 600; color: var(--ink2); }
+
+/* ── hero block ── */
+.hero {
+  margin-bottom: 40px;
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+}
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 38px; line-height: 1.15; color: var(--ink);
+  margin-bottom: 14px; font-weight: 400;
+}
+.hero h1 em { font-style: italic; color: var(--blue); }
+.hero p {
+  font-size: 15px; line-height: 1.75; color: var(--ink2);
+  max-width: 560px;
+}
+.hero-note {
+  margin-top: 16px; padding: 12px 16px;
+  background: var(--amber-lt); border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px; color: var(--amber); font-weight: 500; line-height: 1.5;
+}
+
+/* ── step indicator ── */
+.steps {
+  display: flex; gap: 4px; margin-bottom: 32px;
+}
+.step-dot {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: var(--border); transition: background 0.3s;
+}
+.step-dot.done { background: var(--teal); }
+.step-dot.active { background: var(--blue); }
+
+/* ── section card ── */
+.section-card {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+  animation: fadeUp 0.35s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+}
+.section-badge {
+  width: 32px; height: 32px; border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.badge-b { background: var(--green-lt); color: var(--green); }
+.badge-a { background: #EAF0FA; color: var(--blue); }
+.badge-r { background: #FEF3E2; color: #92400E; }
+.badge-e { background: var(--teal-lt); color: var(--teal); }
+
+.section-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.section-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.section-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 20px; }
+
+/* ── field ── */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 13px; font-weight: 600; color: var(--ink2);
+  display: flex; align-items: baseline; gap: 6px;
+}
+.field label .req { color: var(--teal); font-size: 11px; }
+.field .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+input[type=text], input[type=email], input[type=tel],
+input[type=url], select, textarea {
+  font-family: 'Outfit', sans-serif; font-size: 14px;
+  color: var(--ink); background: var(--surface);
+  border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 11px 14px; outline: none; width: 100%;
+  transition: border-color 0.2s, background 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue); background: var(--white);
+}
+input::placeholder, textarea::placeholder { color: #B8B8CC; }
+textarea { min-height: 100px; resize: vertical; line-height: 1.65; }
+textarea.tall { min-height: 130px; }
+select { cursor: pointer; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── bare scale ── */
+.scale-wrap { display: flex; flex-direction: column; gap: 8px; }
+.scale-label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+.scale-hint-text { font-size: 12px; color: var(--muted); }
+.scale-btns { display: flex; gap: 6px; }
+.scale-btn {
+  flex: 1; padding: 10px 4px; text-align: center;
+  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 500;
+  border: 1.5px solid var(--border); border-radius: 9px;
+  background: var(--surface); color: var(--muted); cursor: pointer;
+  transition: all 0.15s;
+}
+.scale-btn:hover { border-color: #9BAECB; color: var(--ink); }
+.scale-btn.sel-b { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+.scale-btn.sel-a { background: #EAF0FA; border-color: var(--blue); color: var(--blue); }
+.scale-btn.sel-r { background: #FEF3E2; border-color: #92400E; color: #92400E; }
+.scale-btn.sel-e { background: var(--teal-lt); border-color: var(--teal); color: var(--teal); }
+.scale-ends { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 0 2px; }
+
+/* ── checklist ── */
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.check-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 12px; border: 1.5px solid var(--border);
+  border-radius: 9px; cursor: pointer; transition: all 0.15s;
+  font-size: 13px; font-weight: 500; color: var(--ink2);
+  background: var(--surface);
+}
+.check-item:hover { border-color: #9BAECB; }
+.check-item.checked { background: #EAF0FA; border-color: var(--blue); color: var(--blue); }
+.check-item input { display: none; }
+.check-box {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 1.5px solid var(--border); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.check-item.checked .check-box {
+  background: var(--blue); border-color: var(--blue);
+}
+.check-tick { display: none; width: 8px; height: 8px; }
+.check-item.checked .check-tick { display: block; }
+
+/* ── nav buttons ── */
+.nav { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+.btn {
+  font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+  padding: 12px 26px; border-radius: 10px; cursor: pointer; transition: all 0.15s; border: 1.5px solid;
+}
+.btn-back { background: var(--white); border-color: var(--border); color: var(--muted); }
+.btn-back:hover { color: var(--ink); border-color: var(--ink2); }
+.btn-next { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn-next:hover { background: #142d54; }
+.btn-submit { background: var(--teal); border-color: var(--teal); color: #fff; font-size: 15px; padding: 14px 32px; }
+.btn-submit:hover { background: #0b6870; }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── step label ── */
+.step-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+/* ── success screen ── */
+.success-screen {
+  display: none; text-align: center; padding: 60px 24px;
+  animation: fadeUp 0.5s ease both;
+}
+.success-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: var(--green-lt); border: 2px solid #86EFAC;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px; font-size: 28px;
+}
+.success-screen h2 {
+  font-family: 'Instrument Serif', serif; font-size: 32px;
+  font-weight: 400; color: var(--ink); margin-bottom: 12px;
+}
+.success-screen p { font-size: 15px; color: var(--ink2); line-height: 1.7; max-width: 440px; margin: 0 auto 8px; }
+.success-ref {
+  margin-top: 20px; display: inline-block;
+  padding: 10px 20px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 13px; color: var(--muted);
+}
+.success-ref strong { color: var(--ink); font-weight: 600; }
+
+/* ── error msg ── */
+.err-msg { font-size: 12px; color: var(--red); margin-top: 4px; display: none; }
+.err-msg.show { display: block; }
+.field.has-error input, .field.has-error textarea, .field.has-error select {
+  border-color: #F87171;
+}
+
+/* ── spinner ── */
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="progress-shell"><div class="progress-fill" id="progress"></div></div>
+
+<div class="page">
+
+  <!-- brand -->
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="white" opacity="0.9"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="white" opacity="0.7"/>
+      </svg>
+    </div>
+    <span class="brand-name">Fractional HR Services</span>
+  </div>
+
+  <!-- hero -->
+  <div class="hero" id="hero-block">
+    <p class="hero-eyebrow">Junior HR Consultant · Application</p>
+    <h1>Tell us about<br><em>who you are</em></h1>
+    <p>This isn't a standard application form. We want to understand how you think, what drives you, and why this role — not just any HR role — makes sense for you right now.</p>
+    <div class="hero-note">
+      ⏱ Takes about 15–20 minutes. Be honest — there are no trick questions and no perfect answers.
+    </div>
+  </div>
+
+  <!-- step dots -->
+  <div class="steps" id="step-dots">
+    <div class="step-dot active" id="dot-0"></div>
+    <div class="step-dot" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="step-dot" id="dot-3"></div>
+    <div class="step-dot" id="dot-4"></div>
+  </div>
+
+  <div id="form-wrap">
+
+    <!-- ══ STEP 0: BASICS ══ -->
+    <div class="step-panel" id="step-0">
+      <div class="section-card" style="animation-delay:0.05s">
+        <div class="section-head">
+          <div class="section-badge badge-b">01</div>
+          <div>
+            <div class="section-title">About You</div>
+            <div class="section-desc">Basic details so we know who we're talking to</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="field-row">
+            <div class="field" id="f-name">
+              <label>Full Name <span class="req">required</span></label>
+              <input type="text" id="name" placeholder="Your full name" />
+              <span class="err-msg" id="e-name">Please enter your name</span>
+            </div>
+            <div class="field" id="f-email">
+              <label>Email Address <span class="req">required</span></label>
+              <input type="email" id="email" placeholder="you@email.com" />
+              <span class="err-msg" id="e-email">Please enter a valid email</span>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Phone Number</label>
+              <input type="tel" id="phone" placeholder="+91 98765 43210" />
+            </div>
+            <div class="field">
+              <label>City / Location</label>
+              <input type="text" id="location" placeholder="e.g. Chennai" />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field" id="f-exp">
+              <label>Years of Experience <span class="req">required</span></label>
+              <select id="experience">
+                <option value="">Select range</option>
+                <option>Fresher (0 years)</option>
+                <option>Less than 1 year</option>
+                <option>1–2 years</option>
+                <option>2–3 years</option>
+                <option>3+ years</option>
+              </select>
+              <span class="err-msg" id="e-exp">Please select your experience</span>
+            </div>
+            <div class="field">
+              <label>Current / Last Role</label>
+              <input type="text" id="current-role" placeholder="e.g. HR Intern, Graduate" />
+            </div>
+          </div>
+          <div class="field">
+            <label>LinkedIn or Portfolio URL</label>
+            <input type="url" id="linkedin" placeholder="https://linkedin.com/in/yourname" />
+          </div>
+          <div class="field" id="f-salary">
+            <label>Expected Monthly Salary (₹) <span class="req">required</span></label>
+            <input type="text" id="salary" placeholder="e.g. ₹25,000 – ₹30,000" />
+            <span class="hint">Be honest — this helps us both. There's no wrong number.</span>
+            <span class="err-msg" id="e-salary">Please share your salary expectation</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <span class="step-label">Step 1 of 5</span>
+        <button class="btn btn-next" onclick="goNext(0)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 1: BUDGET ══ -->
+    <div class="step-panel" id="step-1" style="display:none">
+      <div class="section-card" style="animation-delay:0.05s">
+        <div class="section-head">
+          <div class="section-badge badge-b">B</div>
+          <div>
+            <div class="section-title">Budget &amp; Motivation</div>
+            <div class="section-desc">How you think about compensation at this stage of your career</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="field" id="f-b1">
+            <label>What would make you stay in a role for 2+ years, even if a higher-paying offer came along? <span class="req">required</span></label>
+            <textarea class="tall" id="b1" placeholder="Think about what actually keeps you motivated beyond a salary…"></textarea>
+            <span class="err-msg" id="e-b1">Please answer this question</span>
+          </div>
+          <div class="field">
+            <label>What does growth mean to you at this point in your career?</label>
+            <textarea id="b2" placeholder="Learning, exposure, title, autonomy — what matters most to you right now?"></textarea>
+          </div>
+          <div class="scale-wrap">
+            <div class="scale-label">How would you rate the importance of learning vs. salary right now?</div>
+            <div class="scale-btns" id="scale-b">
+              <button class="scale-btn" onclick="setScale('b',1)" data-v="1">1</button>
+              <button class="scale-btn" onclick="setScale('b',2)" data-v="2">2</button>
+              <button class="scale-btn" onclick="setScale('b',3)" data-v="3">3</button>
+              <button class="scale-btn" onclick="setScale('b',4)" data-v="4">4</button>
+              <button class="scale-btn" onclick="setScale('b',5)" data-v="5">5</button>
+            </div>
+            <div class="scale-ends"><span>Salary first</span><span>Learning first</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goBack(1)">← Back</button>
+        <span class="step-label">Step 2 of 5</span>
+        <button class="btn btn-next" onclick="goNext(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: ATTITUDE ══ -->
+    <div class="step-panel" id="step-2" style="display:none">
+      <div class="section-card" style="animation-delay:0.05s">
+        <div class="section-head">
+          <div class="section-badge badge-a">A</div>
+          <div>
+            <div class="section-title">Attitude &amp; Mindset</div>
+            <div class="section-desc">The most important section — we want to know how you think and act</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="field" id="f-a1">
+            <label>Tell us about a time you created structure in a situation that had none. What did you do and what happened? <span class="req">required</span></label>
+            <textarea class="tall" id="a1" placeholder="This could be at work, college, or in life. Walk us through it…"></textarea>
+            <span class="err-msg" id="e-a1">Please answer this question</span>
+          </div>
+          <div class="field" id="f-a2">
+            <label>Describe a moment you stayed with something difficult when it would have been easier to walk away. <span class="req">required</span></label>
+            <textarea class="tall" id="a2" placeholder="What made you stay? What did you learn?"></textarea>
+            <span class="err-msg" id="e-a2">Please answer this question</span>
+          </div>
+          <div class="field">
+            <label>What is something you recently got wrong? How did you handle it?</label>
+            <textarea id="a3" placeholder="Honest answers matter more than impressive ones here…"></textarea>
+          </div>
+          <div class="field" id="f-a4">
+            <label>Why this role specifically — not HR in general, but this one? <span class="req">required</span></label>
+            <textarea class="tall" id="a4" placeholder="What is it about the Fractional HR / consulting approach that caught your attention?"></textarea>
+            <span class="err-msg" id="e-a4">Please answer this question</span>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goBack(2)">← Back</button>
+        <span class="step-label">Step 3 of 5</span>
+        <button class="btn btn-next" onclick="goNext(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: ROLE ══ -->
+    <div class="step-panel" id="step-3" style="display:none">
+      <div class="section-card" style="animation-delay:0.05s">
+        <div class="section-head">
+          <div class="section-badge badge-r">R</div>
+          <div>
+            <div class="section-title">Role &amp; Skills</div>
+            <div class="section-desc">How you work and what you can do</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="field" id="f-r1">
+            <label>Walk us through how you would document a process that no one has written down before. <span class="req">required</span></label>
+            <textarea class="tall" id="r1" placeholder="Where would you start? What would you ask? What would the output look like?"></textarea>
+            <span class="err-msg" id="e-r1">Please answer this question</span>
+          </div>
+          <div class="field">
+            <label>Share something you have written that you are proud of — and tell us what makes it good.</label>
+            <textarea id="r2" placeholder="A report, an email, a plan, a college paper. Paste it or describe it…"></textarea>
+          </div>
+          <div class="field">
+            <label>Which of these tools are you comfortable with? <span style="font-weight:400;color:var(--muted)">(select all that apply)</span></label>
+            <div class="check-grid" id="tools-check">
+              <label class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" value="Google Workspace">
+                <div class="check-box"><svg class="check-tick" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+                Google Workspace
+              </label>
+              <label class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" value="MS Office">
+                <div class="check-box"><svg class="check-tick" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+                MS Office
+              </label>
+              <label class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" value="Notion">
+                <div class="check-box"><svg class="check-tick" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+                Notion
+              </label>
+              <label class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" value="Asana / Trello">
+                <div class="check-box"><svg class="check-tick" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+                Asana / Trello
+              </label>
+              <label class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" value="HRMS / ATS tools">
+                <div class="check-box"><svg class="check-tick" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+                HRMS / ATS tools
+              </label>
+              <label class="check-item" onclick="toggleCheck(this)">
+                <input type="checkbox" value="None of the above">
+                <div class="check-box"><svg class="check-tick" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+                None yet
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <label>How do you manage multiple things with unclear priorities? Give an example.</label>
+            <textarea id="r3" placeholder="Walk us through how you actually handle this…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goBack(3)">← Back</button>
+        <span class="step-label">Step 4 of 5</span>
+        <button class="btn btn-next" onclick="goNext(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- ══ STEP 4: EXPOSURE ══ -->
+    <div class="step-panel" id="step-4" style="display:none">
+      <div class="section-card" style="animation-delay:0.05s">
+        <div class="section-head">
+          <div class="section-badge badge-e">E</div>
+          <div>
+            <div class="section-title">Exposure &amp; Expectations</div>
+            <div class="section-desc">Where you are headed and how this fits in</div>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="field" id="f-e1">
+            <label>Where do you see yourself in 3 years — and how does this role connect to that? <span class="req">required</span></label>
+            <textarea class="tall" id="e1" placeholder="Be specific. What do you want to be capable of that you aren't today?"></textarea>
+            <span class="err-msg" id="e-e1">Please answer this question</span>
+          </div>
+          <div class="field">
+            <label>What excites you about working across multiple organisations rather than staying inside one?</label>
+            <textarea id="e2" placeholder="Think about variety, exposure, the type of problems you'd face…"></textarea>
+          </div>
+          <div class="field">
+            <label>What would frustrate you in this role? Be honest.</label>
+            <textarea id="e3" placeholder="We genuinely want to know — it helps us both figure out if this is the right fit…"></textarea>
+          </div>
+          <div class="scale-wrap">
+            <div class="scale-label">How ready do you feel to take on a consulting role right now?</div>
+            <div class="scale-btns" id="scale-e">
+              <button class="scale-btn" onclick="setScale('e',1)" data-v="1">1</button>
+              <button class="scale-btn" onclick="setScale('e',2)" data-v="2">2</button>
+              <button class="scale-btn" onclick="setScale('e',3)" data-v="3">3</button>
+              <button class="scale-btn" onclick="setScale('e',4)" data-v="4">4</button>
+              <button class="scale-btn" onclick="setScale('e',5)" data-v="5">5</button>
+            </div>
+            <div class="scale-ends"><span>Not ready yet</span><span>Fully ready</span></div>
+          </div>
+          <div class="field">
+            <label>Anything else you want us to know?</label>
+            <textarea id="extra" placeholder="Questions, context, something the form didn't ask but you think matters…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn btn-back" onclick="goBack(4)">← Back</button>
+        <span class="step-label">Step 5 of 5</span>
+        <button class="btn btn-submit" id="submit-btn" onclick="submitForm()">Submit Application</button>
+      </div>
+    </div>
+
+  </div><!-- /form-wrap -->
+
+  <!-- success screen -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>Application received.</h2>
+    <p>Thank you for taking the time to answer thoughtfully. We read every response personally.</p>
+    <p>If there's a fit, you'll hear from us within <strong>5 working days</strong> with the next steps.</p>
+    <div class="success-ref">Reference ID: <strong id="ref-id">—</strong></div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── REPLACE THIS URL with your Google Apps Script Web App URL ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwSJEOPfRQnpnqdhXGuoG2-DH_k4CwAQjfD86kCGzA800FDhkGjc34Egla2Rjr04yETg/exec';
+
+let currentStep = 0;
+const totalSteps = 5;
+const scales = { b: 0, e: 0 };
+
+function setScale(section, val) {
+  scales[section] = val;
+  document.querySelectorAll(`#scale-${section} .scale-btn`).forEach((btn, i) => {
+    btn.classList.remove('sel-b','sel-a','sel-r','sel-e');
+    if (i < val) btn.classList.add(`sel-${section}`);
+  });
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+function getChecked() {
+  return Array.from(document.querySelectorAll('#tools-check .check-item.checked input'))
+    .map(i => i.value).join(', ') || 'None selected';
+}
+
+function showStep(n) {
+  for (let i = 0; i < totalSteps; i++) {
+    const el = document.getElementById('step-' + i);
+    if (el) el.style.display = i === n ? 'block' : 'none';
+    const dot = document.getElementById('dot-' + i);
+    if (dot) {
+      dot.classList.remove('active','done');
+      if (i < n) dot.classList.add('done');
+      if (i === n) dot.classList.add('active');
+    }
+  }
+  document.getElementById('progress').style.width = ((n / (totalSteps - 1)) * 100) + '%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validate(step) {
+  let ok = true;
+  const checks = {
+    0: [
+      { id: 'name', err: 'e-name', test: v => v.trim().length > 1 },
+      { id: 'email', err: 'e-email', test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      { id: 'experience', err: 'e-exp', test: v => v !== '' },
+      { id: 'salary', err: 'e-salary', test: v => v.trim().length > 0 },
+    ],
+    1: [{ id: 'b1', err: 'e-b1', test: v => v.trim().length > 20 }],
+    2: [
+      { id: 'a1', err: 'e-a1', test: v => v.trim().length > 30 },
+      { id: 'a2', err: 'e-a2', test: v => v.trim().length > 30 },
+      { id: 'a4', err: 'e-a4', test: v => v.trim().length > 20 },
+    ],
+    3: [{ id: 'r1', err: 'e-r1', test: v => v.trim().length > 20 }],
+    4: [{ id: 'e1', err: 'e-e1', test: v => v.trim().length > 20 }],
+  };
+  (checks[step] || []).forEach(({ id, err, test }) => {
+    const el = document.getElementById(id);
+    const errEl = document.getElementById(err);
+    const wrap = el?.closest('.field');
+    const val = el?.value || '';
+    const valid = test(val);
+    if (errEl) errEl.classList.toggle('show', !valid);
+    if (wrap) wrap.classList.toggle('has-error', !valid);
+    if (!valid) ok = false;
+  });
+  return ok;
+}
+
+function goNext(step) {
+  if (!validate(step)) return;
+  currentStep = step + 1;
+  showStep(currentStep);
+}
+
+function goBack(step) {
+  currentStep = step - 1;
+  showStep(currentStep);
+}
+
+function generateRef() {
+  return 'FHR-' + Date.now().toString(36).toUpperCase().slice(-6);
+}
+
+async function submitForm() {
+  if (!validate(4)) return;
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+  const ref = generateRef();
+  const payload = {
+    ref,
+    timestamp: new Date().toISOString(),
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    location: document.getElementById('location').value,
+    experience: document.getElementById('experience').value,
+    currentRole: document.getElementById('current-role').value,
+    linkedin: document.getElementById('linkedin').value,
+    salary: document.getElementById('salary').value,
+    // B
+    b_stay: document.getElementById('b1').value,
+    b_growth: document.getElementById('b2').value,
+    b_scale: scales.b,
+    // A
+    a_structure: document.getElementById('a1').value,
+    a_resilience: document.getElementById('a2').value,
+    a_mistake: document.getElementById('a3').value,
+    a_why: document.getElementById('a4').value,
+    // R
+    r_document: document.getElementById('r1').value,
+    r_writing: document.getElementById('r2').value,
+    r_tools: getChecked(),
+    r_priorities: document.getElementById('r3').value,
+    // E
+    e_vision: document.getElementById('e1').value,
+    e_variety: document.getElementById('e2').value,
+    e_frustration: document.getElementById('e3').value,
+    e_scale: scales.e,
+    extra: document.getElementById('extra').value,
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (e) {
+    // no-cors means we can't read response — submission still goes through
+  }
+
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('hero-block').style.display = 'none';
+  document.getElementById('step-dots').style.display = 'none';
+  document.getElementById('ref-id').textContent = ref;
+  document.getElementById('success-screen').style.display = 'block';
+  document.getElementById('progress').style.width = '100%';
+}
+
+// init
+showStep(0);
+</script>
+</body>
+</html>

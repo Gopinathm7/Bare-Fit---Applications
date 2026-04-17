@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BARE Fit — Evaluator Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --ink: #141418; --ink2: #3C3C48; --muted: #8C8C9E;
+  --border: #E2E2EC; --surface: #F7F7FB; --white: #FFFFFF;
+  --blue: #1B3A6B; --blue-mid: #2A5298;
+  --teal: #0E7C86; --teal-lt: #E3F5F6;
+  --amber: #B86E00; --amber-lt: #FEF3E2;
+  --green: #166534; --green-lt: #DCFCE7;
+  --red: #991B1B; --red-lt: #FEE2E2;
+  --coral: #C24B2A; --coral-lt: #FAEDE8;
+  --radius: 14px;
+}
+
+body { font-family: 'Outfit', sans-serif; background: #EEEEF5; color: var(--ink); min-height: 100vh; }
+
+/* ── SIDEBAR ── */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 280px; flex-shrink: 0;
+  background: var(--blue); display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.sidebar-logo {
+  display: flex; align-items: center; gap: 9px; margin-bottom: 4px;
+}
+.logo-mark {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 16px; height: 16px; }
+.logo-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); }
+.sidebar-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+.sidebar-section { padding: 16px 20px 8px; }
+.sidebar-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 8px; }
+
+.candidate-item {
+  padding: 10px 12px; border-radius: 9px; cursor: pointer;
+  transition: background 0.15s; margin-bottom: 4px;
+}
+.candidate-item:hover { background: rgba(255,255,255,0.08); }
+.candidate-item.active { background: rgba(255,255,255,0.15); }
+.ci-name { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.9); }
+.ci-meta { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.ci-badge {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  padding: 2px 7px; border-radius: 10px; margin-top: 4px;
+}
+.badge-new { background: rgba(14,124,134,0.35); color: #7ECDD4; }
+.badge-reviewed { background: rgba(26,122,74,0.3); color: #86EFAC; }
+.badge-second { background: rgba(184,110,0,0.35); color: #FCD34D; }
+.badge-pass { background: rgba(153,27,27,0.35); color: #FCA5A5; }
+
+.sidebar-footer {
+  margin-top: auto; padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 11px; color: rgba(255,255,255,0.3);
+}
+.sidebar-footer a { color: rgba(255,255,255,0.5); text-decoration: none; }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; }
+
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--ink); }
+.topbar-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+.btn { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; padding: 9px 18px; border-radius: 9px; cursor: pointer; transition: all 0.15s; border: 1.5px solid; }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.btn-outline { background: var(--white); border-color: var(--border); color: var(--muted); }
+.btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+.btn-primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn-primary:hover { background: #142d54; }
+.btn-teal { background: var(--teal); border-color: var(--teal); color: #fff; }
+.btn-teal:hover { background: #0b6870; }
+.btn-green { background: var(--green); border-color: var(--green); color: #fff; }
+.btn-amber { background: var(--amber); border-color: var(--amber); color: #fff; }
+.btn-red { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* ── CONTENT ── */
+.content { padding: 28px 32px; max-width: 900px; }
+
+/* ── CANDIDATE HEADER ── */
+.cand-header {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 22px 24px; margin-bottom: 20px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+}
+.cand-avatar {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: #EAF0FA; color: var(--blue);
+  font-size: 18px; font-weight: 600; font-family: 'Instrument Serif', serif;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.cand-info { flex: 1; }
+.cand-name { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.cand-meta-row { display: flex; gap: 16px; flex-wrap: wrap; }
+.cand-meta-item { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.cand-meta-item strong { color: var(--ink2); font-weight: 500; }
+.cand-ref { font-size: 11px; color: var(--muted); margin-top: 6px; font-family: monospace; }
+
+/* ── ANSWER SECTION ── */
+.eval-section {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--border); margin-bottom: 20px; overflow: hidden;
+}
+.eval-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 22px; border-bottom: 1px solid var(--border);
+}
+.eval-section-left { display: flex; align-items: center; gap: 10px; }
+.eval-badge {
+  width: 28px; height: 28px; border-radius: 7px;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.eb-b { background: var(--green-lt); color: var(--green); }
+.eb-a { background: #EAF0FA; color: var(--blue); }
+.eb-r { background: var(--coral-lt); color: var(--coral); }
+.eb-e { background: var(--teal-lt); color: var(--teal); }
+.eval-section-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.eval-score-pill {
+  font-size: 13px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+  background: var(--surface); color: var(--muted); border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.eval-section-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── QA BLOCK ── */
+.qa-block { }
+.qa-q { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.qa-a {
+  font-size: 14px; color: var(--ink2); line-height: 1.7;
+  background: var(--surface); border-radius: 9px; padding: 12px 14px;
+  border: 1px solid var(--border); white-space: pre-wrap;
+}
+.qa-a.empty { color: var(--muted); font-style: italic; }
+
+/* probe question + notes */
+.probe-wrap { margin-top: 8px; }
+.probe-label { font-size: 11px; font-weight: 600; color: var(--teal); margin-bottom: 5px; display: flex; align-items: center; gap: 5px; }
+.probe-q { font-size: 13px; color: var(--ink2); font-style: italic; margin-bottom: 6px; line-height: 1.5; padding-left: 10px; border-left: 2px solid var(--teal-lt); }
+.probe-notes textarea {
+  width: 100%; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--ink);
+  background: var(--white); border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 9px 12px; outline: none; resize: vertical; min-height: 64px; line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.probe-notes textarea:focus { border-color: var(--blue); }
+.probe-notes textarea::placeholder { color: #C0C0D0; }
+
+/* score strip */
+.score-strip {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; background: var(--surface); border-radius: 9px;
+  border: 1px solid var(--border); margin-top: 4px;
+}
+.score-strip-left { font-size: 12px; font-weight: 600; color: var(--muted); }
+.score-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stars { display: flex; gap: 5px; }
+.star {
+  width: 30px; height: 30px; border-radius: 7px;
+  font-size: 12px; font-weight: 700; border: 1.5px solid var(--border);
+  background: var(--white); color: var(--muted);
+  cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center;
+}
+.star:hover { border-color: #9BAECB; }
+.star.on-b { background: var(--green); border-color: var(--green); color: #fff; }
+.star.on-a { background: var(--blue); border-color: var(--blue); color: #fff; }
+.star.on-r { background: var(--coral); border-color: var(--coral); color: #fff; }
+.star.on-e { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+.dealbreaker {
+  display: none; align-items: center; gap: 8px;
+  background: var(--red-lt); border: 1px solid #FCA5A5;
+  border-radius: 8px; padding: 9px 13px; margin-top: 8px;
+  font-size: 12px; font-weight: 500; color: var(--red);
+}
+.dealbreaker.show { display: flex; }
+.db-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* ── ASSIGNMENT SECTION ── */
+.assign-section {
+  background: var(--white); border-radius: var(--radius);
+  border: 1.5px solid var(--blue); margin-bottom: 20px; overflow: hidden;
+}
+.assign-head {
+  background: var(--blue); padding: 14px 22px;
+  display: flex; align-items: center; gap: 10px;
+}
+.assign-head-icon { font-size: 16px; }
+.assign-head-title { font-size: 14px; font-weight: 600; color: #fff; }
+.assign-head-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
+.assign-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.assign-task {
+  padding: 12px 14px; background: #EAF0FA; border-radius: 9px;
+  border-left: 3px solid var(--blue); font-size: 13px; color: var(--ink2); line-height: 1.65;
+}
+.assign-task strong { color: var(--blue); font-weight: 600; display: block; margin-bottom: 3px; }
+.field-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.assign-body textarea {
+  width: 100%; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 10px 13px; outline: none; resize: vertical; min-height: 80px; line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.assign-body textarea:focus { border-color: var(--blue); }
+.assign-body textarea::placeholder { color: #C0C0D0; }
+
+/* ── SUMMARY ── */
+.summary-bar {
+  background: var(--blue); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 20px;
+  color: #fff;
+}
+.summary-title { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; margin-bottom: 16px; }
+.score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.score-cell { text-align: center; }
+.score-cell-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+.score-cell-num { font-family: 'Instrument Serif', serif; font-size: 30px; color: #fff; line-height: 1; }
+.score-cell-denom { font-size: 12px; color: rgba(255,255,255,0.35); }
+.summary-total-row { display: flex; align-items: baseline; justify-content: space-between; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); }
+.summary-total-label { font-size: 13px; color: rgba(255,255,255,0.5); }
+.summary-total-num { font-family: 'Instrument Serif', serif; font-size: 40px; color: #fff; line-height: 1; }
+.summary-badge {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+
+/* ── VERDICT ── */
+.verdict-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+.verdict-btn {
+  font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+  padding: 13px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--white); color: var(--muted); cursor: pointer; text-align: center;
+  transition: all 0.15s;
+}
+.verdict-btn:hover { border-color: #9BAECB; color: var(--ink); }
+.v-proceed { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+.v-second { background: var(--amber-lt); border-color: var(--amber); color: var(--amber); }
+.v-pass { background: var(--red-lt); border-color: var(--red); color: var(--red); }
+
+/* ── EMPTY STATE ── */
+.empty-state { padding: 80px 32px; text-align: center; }
+.empty-state h3 { font-family: 'Instrument Serif', serif; font-size: 24px; font-weight: 400; color: var(--ink2); margin-bottom: 8px; }
+.empty-state p { font-size: 14px; color: var(--muted); }
+
+/* ── LOAD SCREEN ── */
+.load-screen { padding: 60px 32px; text-align: center; }
+.spinner { width: 32px; height: 32px; border: 2.5px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 200; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media print {
+  .sidebar, .topbar-actions, .verdict-row, .assign-body textarea, .probe-notes textarea { display: none; }
+  .main { margin: 0; }
+  .layout { display: block; }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="white" opacity="0.9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="white" opacity="0.5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity="0.7"/></svg>
+        </div>
+        <span class="logo-name">Evaluator Dashboard</span>
+      </div>
+      <div class="sidebar-sub">BARE Fit · Junior HR Consultant</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Submissions</div>
+      <div id="candidate-list">
+        <div style="font-size:12px;color:rgba(255,255,255,0.3);padding:8px 12px;">Loading…</div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div style="margin-bottom:6px;">
+        <button class="btn btn-outline btn-sm" style="width:100%;font-size:12px;" onclick="loadFromSheet()">↻ Refresh Submissions</button>
+      </div>
+      Powered by Google Sheets backend
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-name">Select a candidate</div>
+        <div class="topbar-sub" id="topbar-sub">Choose from the sidebar to begin evaluation</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm" onclick="window.print()">Print / PDF</button>
+        <button class="btn btn-teal btn-sm" onclick="saveEvaluation()">Save Evaluation</button>
+      </div>
+    </div>
+
+    <div class="content" id="main-content">
+      <div class="empty-state">
+        <h3>No candidate selected</h3>
+        <p>Choose a submission from the sidebar to begin your BARE Fit evaluation.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── REPLACE with your Google Apps Script Web App URL ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwSJEOPfRQnpnqdhXGuoG2-DH_k4CwAQjfD86kCGzA800FDhkGjc34Egla2Rjr04yETg/exec';
+
+const hints = ['','Weak','Below avg','Average','Good fit','Strong'];
+let candidates = [];
+let currentCand = null;
+let evalScores = { b: 0, a: 0, r: 0, e: 0 };
+let evalVerdict = null;
+
+// ── DEMO DATA (remove once connected to Sheet) ──
+const DEMO = [
+  {
+    ref: 'FHR-A1B2C3', name: 'Priya Nair', email: 'priya.nair@email.com',
+    phone: '+91 98765 43210', location: 'Chennai', experience: '1–2 years',
+    currentRole: 'HR Intern', salary: '₹25,000 – ₹30,000',
+    timestamp: '2025-04-14T09:30:00Z', linkedin: 'linkedin.com/in/priyanair',
+    b_stay: 'I'd stay if I feel like I'm learning something I couldn't learn anywhere else. A title bump at another company doesn't excite me as much as being given real responsibility and seeing the results of my work.',
+    b_growth: 'Right now I define growth as exposure — being in rooms and situations I wouldn't normally get access to at this stage.',
+    b_scale: 4,
+    a_structure: 'During my college placement cell, nobody had documented the shortlisting criteria. I interviewed seniors, mapped out what they actually did, and created a simple handbook that the next batch used. It wasn't perfect, but it gave them a starting point.',
+    a_resilience: 'I took on a project to redesign the onboarding process for our NGO volunteer program. It kept falling apart — coordinators were unresponsive, timelines slipped. I stayed because I knew the outcome would matter to the volunteers. It took 3 months longer than planned but we got it done.',
+    a_mistake: 'I sent out a survey to employees without getting it reviewed. Some of the questions were leading and one manager flagged it. I apologised, redid the survey with their input, and built a review checklist I've used ever since.',
+    a_why: 'I read about fractional consulting and it struck me as the opposite of getting stuck inside one company's politics. You get to see what's broken across many places — and actually fix it.',
+    r_document: 'I'd start by talking to whoever does the process — even informally. I'd ask: what's the first thing you do, what happens next, where does it usually get stuck? Then I'd map it roughly and get it reviewed before writing anything up.',
+    r_writing: 'I wrote a handover document for my replacement at my internship. I made it good by writing it as if the person had never worked there before — no jargon, every step explained.',
+    r_tools: 'Google Workspace, Notion',
+    r_priorities: 'I list everything, ask "what breaks if this isn't done today?" and start there. If two things have equal urgency I pick the one that unblocks someone else first.',
+    e_vision: 'In 3 years I want to be able to walk into an organisation and diagnose what's wrong within a week. This role feels like the fastest path to that — I'll see more in 2 years here than in 5 years in a single company.',
+    e_variety: 'The variety is exactly what excites me. I get bored with routine. Knowing every client brings a different problem keeps me sharp.',
+    e_frustration: 'I think I'd get frustrated if I were just taking notes and filing things without understanding why. I'd want to know the bigger picture of what we're trying to achieve for the client.',
+    e_scale: 3, extra: ''
+  },
+  {
+    ref: 'FHR-D4E5F6', name: 'Arjun Menon', email: 'arjun.m@email.com',
+    phone: '+91 90123 45678', location: 'Bangalore', experience: 'Fresher (0 years)',
+    currentRole: 'Final year MBA', salary: '₹20,000 – ₹22,000',
+    timestamp: '2025-04-15T14:10:00Z', linkedin: '',
+    b_stay: 'Learning. If I'm growing every month, salary becomes secondary. I've seen people jump for 10% more and then stagnate.',
+    b_growth: 'Exposure to real problems, not simulated ones. MBA gives frameworks — this role would give reality.',
+    b_scale: 5,
+    a_structure: 'My college department had no study group system. I started one, created a shared notes repo, scheduled weekly sessions. 40 students used it by end of semester.',
+    a_resilience: 'My dissertation research hit a wall when the primary data source fell through. I rebuilt the methodology using secondary data. Submitted on time.',
+    a_mistake: 'Missed a presentation deadline because I didn't communicate a blocker early enough. Learned to flag problems before they become problems.',
+    a_why: 'Most HR roles I see are reactive. This one is about building — that's where I want to be from the start.',
+    r_document: 'Observe first, ask second. I'd shadow the person doing it, note every step, then draft a flow and validate it with them before writing the final doc.',
+    r_writing: 'A strategic analysis report for a live company during college. I made it good by writing the conclusion first, then filling in the evidence backwards.',
+    r_tools: 'Google Workspace, MS Office, Notion, Asana / Trello',
+    r_priorities: 'Eisenhower matrix — urgent vs important. If unclear, I ask the person who assigned it.',
+    e_vision: '3 years from now I want to be leading my own client engagement independently. This role is year 1 of that path.',
+    e_variety: 'Every organisation is a different puzzle. I find that genuinely interesting rather than overwhelming.',
+    e_frustration: 'Lack of clarity on what's expected. I can handle hard work — I find ambiguity about direction harder.',
+    e_scale: 4, extra: 'I'm available to start immediately.'
+  }
+];
+
+function init() {
+  candidates = DEMO;
+  renderSidebar();
+}
+
+function renderSidebar() {
+  const list = document.getElementById('candidate-list');
+  if (!candidates.length) {
+    list.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,0.3);padding:8px 12px;">No submissions yet</div>';
+    return;
+  }
+  list.innerHTML = candidates.map((c, i) => {
+    const saved = JSON.parse(localStorage.getItem('eval_' + c.ref) || '{}');
+    const verdict = saved.verdict || 'new';
+    const badgeMap = { new: 'badge-new', proceed: 'badge-reviewed', second: 'badge-second', pass: 'badge-pass' };
+    const labelMap = { new: 'New', proceed: 'Move Forward', second: '2nd Round', pass: 'Not a Fit' };
+    const dt = new Date(c.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    return `<div class="candidate-item ${currentCand?.ref === c.ref ? 'active' : ''}" onclick="selectCandidate(${i})">
+      <div class="ci-name">${c.name}</div>
+      <div class="ci-meta">${c.experience} · ${c.location} · ${dt}</div>
+      <span class="ci-badge ${badgeMap[verdict] || 'badge-new'}">${labelMap[verdict] || 'New'}</span>
+    </div>`;
+  }).join('');
+}
+
+function selectCandidate(i) {
+  currentCand = candidates[i];
+  evalScores = { b: 0, a: 0, r: 0, e: 0 };
+  evalVerdict = null;
+
+  const saved = JSON.parse(localStorage.getItem('eval_' + currentCand.ref) || '{}');
+  if (saved.scores) evalScores = saved.scores;
+  if (saved.verdict) evalVerdict = saved.verdict;
+
+  document.getElementById('topbar-name').textContent = currentCand.name;
+  document.getElementById('topbar-sub').textContent = `Ref: ${currentCand.ref} · Submitted ${new Date(currentCand.timestamp).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+  renderCandidateView();
+  renderSidebar();
+}
+
+function ans(val) {
+  if (!val || val.toString().trim() === '' || val === '0') return '<span class="qa-a empty">No answer provided</span>';
+  return `<div class="qa-a">${val}</div>`;
+}
+
+function renderCandidateView() {
+  const c = currentCand;
+  const saved = JSON.parse(localStorage.getItem('eval_' + c.ref) || '{}');
+  const initials = c.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+
+  document.getElementById('main-content').innerHTML = `
+
+    <!-- CANDIDATE HEADER -->
+    <div class="cand-header">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <div class="cand-avatar">${initials}</div>
+        <div class="cand-info">
+          <div class="cand-name">${c.name}</div>
+          <div class="cand-meta-row">
+            <span class="cand-meta-item">📧 <strong>${c.email}</strong></span>
+            <span class="cand-meta-item">📱 <strong>${c.phone || '—'}</strong></span>
+            <span class="cand-meta-item">📍 <strong>${c.location || '—'}</strong></span>
+          </div>
+          <div class="cand-meta-row" style="margin-top:5px;">
+            <span class="cand-meta-item">Experience: <strong>${c.experience}</strong></span>
+            <span class="cand-meta-item">Current Role: <strong>${c.currentRole || '—'}</strong></span>
+            <span class="cand-meta-item">Salary Ask: <strong>${c.salary}</strong></span>
+          </div>
+          <div class="cand-ref">Ref: ${c.ref}</div>
+        </div>
+      </div>
+      ${c.linkedin ? `<a href="https://${c.linkedin.replace('https://','')}" target="_blank" class="btn btn-outline btn-sm">LinkedIn →</a>` : ''}
+    </div>
+
+    <!-- B: BUDGET -->
+    <div class="eval-section">
+      <div class="eval-section-head">
+        <div class="eval-section-left">
+          <div class="eval-badge eb-b">B</div>
+          <div>
+            <div class="eval-section-title">Budget Fit</div>
+          </div>
+        </div>
+        <div class="eval-score-pill" id="pill-b">${evalScores.b ? evalScores.b + '/5' : 'Not scored'}</div>
+      </div>
+      <div class="eval-section-body">
+        <div class="qa-block">
+          <div class="qa-q">What would make you stay 2+ years even with better offers?</div>
+          ${ans(c.b_stay)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">Ask: "What specifically does that look like day-to-day for you? What would signal that you're getting it?"</div>
+            <div class="probe-notes"><textarea id="pn-b1" placeholder="Notes from probing…">${saved['pn-b1']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">What does growth mean to them right now?</div>
+          ${ans(c.b_growth)}
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Learning vs. salary scale (1 = salary first, 5 = learning first)</div>
+          <div class="qa-a">Self-rated: <strong>${c.b_scale || '—'} / 5</strong></div>
+        </div>
+        <div class="score-strip">
+          <div><div class="score-strip-left">Your Budget Fit Score</div><div class="score-hint" id="sh-b">${hints[evalScores.b] || 'Not scored'}</div></div>
+          <div class="stars" id="stars-b">
+            ${[1,2,3,4,5].map(v=>`<div class="star ${evalScores.b>=v?'on-b':''}" onclick="setScore('b',${v})">${v}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A: ATTITUDE -->
+    <div class="eval-section">
+      <div class="eval-section-head">
+        <div class="eval-section-left">
+          <div class="eval-badge eb-a">A</div>
+          <div><div class="eval-section-title">Attitude Fit <span style="font-size:11px;font-weight:400;color:var(--muted);">— Primary filter</span></div></div>
+        </div>
+        <div class="eval-score-pill" id="pill-a">${evalScores.a ? evalScores.a+'/5' : 'Not scored'}</div>
+      </div>
+      <div class="eval-section-body">
+        <div class="qa-block">
+          <div class="qa-q">Created structure out of chaos — their example</div>
+          ${ans(c.a_structure)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"What was the hardest part of that? What would you do differently now?"</div>
+            <div class="probe-notes"><textarea id="pn-a1" placeholder="Notes…">${saved['pn-a1']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Stayed with something difficult</div>
+          ${ans(c.a_resilience)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"At what point did you most want to give up? What kept you going?"</div>
+            <div class="probe-notes"><textarea id="pn-a2" placeholder="Notes…">${saved['pn-a2']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Something they got wrong recently</div>
+          ${ans(c.a_mistake)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"How did the people around you react? What did that teach you about yourself?"</div>
+            <div class="probe-notes"><textarea id="pn-a3" placeholder="Notes…">${saved['pn-a3']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Why this role specifically</div>
+          ${ans(c.a_why)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"What do you understand about fractional consulting that most people your age don't?"</div>
+            <div class="probe-notes"><textarea id="pn-a4" placeholder="Notes…">${saved['pn-a4']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="score-strip">
+          <div><div class="score-strip-left">Your Attitude Score</div><div class="score-hint" id="sh-a">${hints[evalScores.a] || 'Not scored'}</div></div>
+          <div class="stars" id="stars-a">
+            ${[1,2,3,4,5].map(v=>`<div class="star ${evalScores.a>=v?'on-a':''}" onclick="setScore('a',${v})">${v}</div>`).join('')}
+          </div>
+        </div>
+        <div class="dealbreaker ${evalScores.a > 0 && evalScores.a <= 3 ? 'show' : ''}" id="db-alert">
+          <div class="db-dot">!</div>
+          Attitude score is 3 or below — dealbreaker for this role regardless of total.
+        </div>
+      </div>
+    </div>
+
+    <!-- R: ROLE -->
+    <div class="eval-section">
+      <div class="eval-section-head">
+        <div class="eval-section-left">
+          <div class="eval-badge eb-r">R</div>
+          <div><div class="eval-section-title">Role Fit</div></div>
+        </div>
+        <div class="eval-score-pill" id="pill-r">${evalScores.r ? evalScores.r+'/5' : 'Not scored'}</div>
+      </div>
+      <div class="eval-section-body">
+        <div class="qa-block">
+          <div class="qa-q">How they'd document an undocumented process</div>
+          ${ans(c.r_document)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"What if the person doing the process disagrees with your documentation — how do you resolve that?"</div>
+            <div class="probe-notes"><textarea id="pn-r1" placeholder="Notes…">${saved['pn-r1']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Writing sample / what makes it good</div>
+          ${ans(c.r_writing)}
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Tools they're comfortable with</div>
+          ${ans(c.r_tools)}
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Managing multiple priorities with unclear order</div>
+          ${ans(c.r_priorities)}
+        </div>
+        <div class="score-strip">
+          <div><div class="score-strip-left">Your Role Fit Score</div><div class="score-hint" id="sh-r">${hints[evalScores.r] || 'Not scored'}</div></div>
+          <div class="stars" id="stars-r">
+            ${[1,2,3,4,5].map(v=>`<div class="star ${evalScores.r>=v?'on-r':''}" onclick="setScore('r',${v})">${v}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E: EXPOSURE -->
+    <div class="eval-section">
+      <div class="eval-section-head">
+        <div class="eval-section-left">
+          <div class="eval-badge eb-e">E</div>
+          <div><div class="eval-section-title">Exposure &amp; Expectations Fit</div></div>
+        </div>
+        <div class="eval-score-pill" id="pill-e">${evalScores.e ? evalScores.e+'/5' : 'Not scored'}</div>
+      </div>
+      <div class="eval-section-body">
+        <div class="qa-block">
+          <div class="qa-q">3-year vision and how this role connects</div>
+          ${ans(c.e_vision)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"What's your plan B if this path doesn't open up the way you expect?"</div>
+            <div class="probe-notes"><textarea id="pn-e1" placeholder="Notes…">${saved['pn-e1']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">What excites them about multi-org exposure</div>
+          ${ans(c.e_variety)}
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">What would frustrate them</div>
+          ${ans(c.e_frustration)}
+          <div class="probe-wrap">
+            <div class="probe-label">⬥ Probe</div>
+            <div class="probe-q">"How would you handle that frustration — would you raise it or manage it internally?"</div>
+            <div class="probe-notes"><textarea id="pn-e2" placeholder="Notes…">${saved['pn-e2']||''}</textarea></div>
+          </div>
+        </div>
+        <div class="qa-block">
+          <div class="qa-q">Readiness for consulting (self-rated: 1–5)</div>
+          <div class="qa-a">Self-rated: <strong>${c.e_scale || '—'} / 5</strong></div>
+        </div>
+        ${c.extra ? `<div class="qa-block"><div class="qa-q">Additional notes from candidate</div>${ans(c.extra)}</div>` : ''}
+        <div class="score-strip">
+          <div><div class="score-strip-left">Your Exposure Fit Score</div><div class="score-hint" id="sh-e">${hints[evalScores.e] || 'Not scored'}</div></div>
+          <div class="stars" id="stars-e">
+            ${[1,2,3,4,5].map(v=>`<div class="star ${evalScores.e>=v?'on-e':''}" onclick="setScore('e',${v})">${v}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSIGNMENT -->
+    <div class="assign-section">
+      <div class="assign-head">
+        <div class="assign-head-icon">📋</div>
+        <div>
+          <div class="assign-head-title">Interview Assignment</div>
+          <div class="assign-head-sub">Given at or before the in-person interview — evaluate response here</div>
+        </div>
+      </div>
+      <div class="assign-body">
+        <div class="assign-task">
+          <strong>Task A — Process Documentation</strong>
+          You are joining a 25-person company on Day 1. The founder says: "We have no documented processes — just people doing things from memory." You have 3 hours. What do you do, in what order, and what does your output look like at end of day?
+        </div>
+        <div class="assign-task">
+          <strong>Task B — Structured Thinking</strong>
+          A department head tells you: "My team is always busy but nothing important gets done." Using the frameworks you know, walk through how you would diagnose this problem and what you would recommend.
+        </div>
+        <div class="field-label">Evaluator notes on assignment response</div>
+        <textarea id="assign-notes" placeholder="How did they approach it? What did their output look like? What surprised you? What was missing?">${saved['assign-notes']||''}</textarea>
+        <div class="field-label">Assignment score (overall quality)</div>
+        <div class="score-strip" style="margin-top:0;">
+          <div><div class="score-strip-left">Assignment Score</div><div class="score-hint" id="sh-assign">${saved['assign-score'] ? hints[saved['assign-score']] : 'Not scored'}</div></div>
+          <div class="stars" id="stars-assign">
+            ${[1,2,3,4,5].map(v=>`<div class="star ${(saved['assign-score']||0)>=v?'on-a':''}" onclick="setAssignScore(${v})">${v}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-bar" id="summary-bar">
+      <div class="summary-title">Score Summary</div>
+      <div class="score-grid">
+        <div class="score-cell"><div class="score-cell-label">Budget</div><div class="score-cell-num" id="sn-b">${evalScores.b||'—'}</div><div class="score-cell-denom">/ 5</div></div>
+        <div class="score-cell"><div class="score-cell-label">Attitude</div><div class="score-cell-num" id="sn-a">${evalScores.a||'—'}</div><div class="score-cell-denom">/ 5</div></div>
+        <div class="score-cell"><div class="score-cell-label">Role</div><div class="score-cell-num" id="sn-r">${evalScores.r||'—'}</div><div class="score-cell-denom">/ 5</div></div>
+        <div class="score-cell"><div class="score-cell-label">Exposure</div><div class="score-cell-num" id="sn-e">${evalScores.e||'—'}</div><div class="score-cell-denom">/ 5</div></div>
+      </div>
+      <div class="summary-total-row">
+        <div><div class="summary-total-label">Total</div>
+        <div style="display:flex;align-items:baseline;gap:5px;"><span class="summary-total-num" id="total-num">${evalScores.b+evalScores.a+evalScores.r+evalScores.e}</span><span style="font-size:16px;color:rgba(255,255,255,0.35);">/ 20</span></div></div>
+        <div class="summary-badge" id="summary-badge" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);">Score pending</div>
+      </div>
+    </div>
+
+    <!-- VERDICT -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Final Verdict</div>
+    <div class="verdict-row">
+      <button class="verdict-btn ${evalVerdict==='proceed'?'v-proceed':''}" id="v-proceed" onclick="setVerdict('proceed')">✓ Move Forward</button>
+      <button class="verdict-btn ${evalVerdict==='second'?'v-second':''}" id="v-second" onclick="setVerdict('second')">~ Second Round</button>
+      <button class="verdict-btn ${evalVerdict==='pass'?'v-pass':''}" id="v-pass" onclick="setVerdict('pass')">✕ Not a Fit</button>
+    </div>
+
+  `;
+
+  updateSummary();
+  // restore assign score
+  const savedLocal = JSON.parse(localStorage.getItem('eval_' + c.ref) || '{}');
+  if (savedLocal['assign-score']) assignScore = savedLocal['assign-score'];
+}
+
+let assignScore = 0;
+function setAssignScore(v) {
+  assignScore = v;
+  document.querySelectorAll('#stars-assign .star').forEach((s,i) => {
+    s.classList.toggle('on-a', i < v);
+  });
+  const sh = document.getElementById('sh-assign');
+  if (sh) sh.textContent = hints[v] || '';
+}
+
+function setScore(section, val) {
+  evalScores[section] = val;
+  document.querySelectorAll(`#stars-${section} .star`).forEach((s, i) => {
+    s.classList.remove('on-b','on-a','on-r','on-e');
+    if (i < val) s.classList.add(`on-${section}`);
+  });
+  const sh = document.getElementById(`sh-${section}`);
+  if (sh) sh.textContent = hints[val] || '';
+  const pill = document.getElementById(`pill-${section}`);
+  if (pill) pill.textContent = val + '/5';
+  if (section === 'a') {
+    const db = document.getElementById('db-alert');
+    if (db) db.classList.toggle('show', val > 0 && val <= 3);
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  const total = evalScores.b + evalScores.a + evalScores.r + evalScores.e;
+  const tn = document.getElementById('total-num');
+  if (tn) tn.textContent = total;
+  ['b','a','r','e'].forEach(s => {
+    const el = document.getElementById('sn-'+s);
+    if (el) el.textContent = evalScores[s] || '—';
+  });
+  const badge = document.getElementById('summary-badge');
+  if (!badge) return;
+  const aDb = evalScores.a > 0 && evalScores.a <= 3;
+  if (aDb) { badge.style.cssText = 'background:rgba(153,27,27,0.4);color:#FCA5A5;'; badge.textContent = 'Dealbreaker — Attitude'; }
+  else if (total >= 17) { badge.style.cssText = 'background:rgba(22,101,52,0.4);color:#86EFAC;'; badge.textContent = 'Strong candidate'; }
+  else if (total >= 13) { badge.style.cssText = 'background:rgba(14,124,134,0.3);color:#7ECDD4;'; badge.textContent = 'Good potential'; }
+  else if (total >= 9)  { badge.style.cssText = 'background:rgba(184,110,0,0.35);color:#FCD34D;'; badge.textContent = 'Needs assessment'; }
+  else if (total > 0)   { badge.style.cssText = 'background:rgba(153,27,27,0.3);color:#FCA5A5;'; badge.textContent = 'Weak fit'; }
+  else { badge.style.cssText = 'background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);'; badge.textContent = 'Score pending'; }
+}
+
+function setVerdict(v) {
+  evalVerdict = v;
+  ['proceed','second','pass'].forEach(k => {
+    const btn = document.getElementById('v-'+k);
+    if (btn) btn.classList.remove('v-proceed','v-second','v-pass');
+  });
+  const btn = document.getElementById('v-'+v);
+  if (btn) btn.classList.add('v-'+v);
+}
+
+function saveEvaluation() {
+  if (!currentCand) return;
+  const noteIds = ['pn-b1','pn-a1','pn-a2','pn-a3','pn-a4','pn-r1','pn-e1','pn-e2','assign-notes'];
+  const data = { scores: evalScores, verdict: evalVerdict, 'assign-score': assignScore };
+  noteIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data[id] = el.value;
+  });
+  localStorage.setItem('eval_' + currentCand.ref, JSON.stringify(data));
+  renderSidebar();
+  showToast('Evaluation saved');
+}
+
+async function loadFromSheet() {
+  showToast('Refreshing from Sheet…');
+  // When connected: fetch(SCRIPT_URL + '?action=list') and populate candidates[]
+  setTimeout(() => showToast('Using demo data — connect Sheet to load live submissions'), 800);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+init();
+</script>
+</body>
+</html>
